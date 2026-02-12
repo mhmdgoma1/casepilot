@@ -1,4 +1,4 @@
-const WA_NUMBER = "97156678811"; // <-- حط رقمك بصيغة دولية بدون +
+const WA_NUMBER = "971566678811"; // <-- حط رقمك بصيغة دولية بدون +
 const WA_TEXT = encodeURIComponent(
   "Hi CasePilot! I'm interested in Early Access.\n" +
   "Office name: \n" +
