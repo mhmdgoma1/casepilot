@@ -154,9 +154,9 @@ const DEMO_DB: ClientRecord[] = [
   {
     clientId: "CP-1001",
     pin: "1234",
-    name: "Ahmed Al Mazrouei",
-    phone: "+971 50 123 4567",
-    office: "Golden Gate Typing Center",
+    name: "Katrin Helmy",
+    phone: "+971 50 289 9020",
+    office: "Nehad Typing Center",
     cases: [
       {
         id: "UAE-VC-24091",
@@ -202,8 +202,8 @@ const DEMO_DB: ClientRecord[] = [
     clientId: "CP-1002",
     pin: "2222",
     name: "Fatima Al Shehhi",
-    phone: "+971 55 777 9911",
-    office: "Al Noor Visa Services",
+    phone: "+971 54 328 2823",
+    office: "Jazeerah Al Maryah",
     cases: [
       {
         id: "UAE-VC-23988",
@@ -406,7 +406,7 @@ export default function Home() {
                   <input
                     value={clientId}
                     onChange={(e) => setClientId(e.target.value)}
-                    placeholder="CP-1001"
+                    placeholder="Plesae enter client ID"
                     className="w-full rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-slate-900/20"
                   />
                 </div>
@@ -418,7 +418,7 @@ export default function Home() {
                   <input
                     value={pin}
                     onChange={(e) => setPin(e.target.value)}
-                    placeholder="1234"
+                    placeholder="Please enter client password"
                     inputMode="numeric"
                     className="w-full rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-slate-900/20"
                   />
@@ -525,9 +525,11 @@ export default function Home() {
                     : "This is a demo page."}
                 </p>
                 <p className="mt-2 text-xs text-slate-600">
-                  {lang === "ar"
-                    ? "في الاجتماع: قل لهم أن هذا هو شكل بوابة العميل، وخطوتك التالية إضافة رفع مستندات وربطها بلوحة المكتب."
-                    : "In the meeting: tell them this is the client portal UI; next step is enabling uploads + linking to office dashboard."}
+                  {lang === "ar" ? " " : "" 
+                    // ? "في الاجتماع: قل لهم أن هذا هو شكل بوابة العميل، وخطوتك التالية إضافة رفع مستندات وربطها بلوحة المكتب."
+                    //: "In the meeting: tell them this is the client portal UI; next step is enabling uploads + linking to office dashboard."
+                  }
+                  
                 </p>
               </div>
             </aside>
