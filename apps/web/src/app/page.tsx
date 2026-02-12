@@ -204,6 +204,10 @@ export default function Home() {
               {t.navWa}
             </a>
 
+            <a href="/client" className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium text-slate-900 hover:bg-slate-50">
+              Client Login
+            </a>
+
             <a href="#pricing" className="hover:text-slate-900">
               {t.navPricing}
             </a>
