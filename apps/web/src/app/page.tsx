@@ -1,296 +1,176 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 
-/**
- * SIMPLE CLIENT LOGIN + CASES (single file)
- * - No backend. Demo only (looks real).
- * - Login with: Client ID + PIN
- * - Persists session in localStorage
- * - Shows a clean "My Cases" dashboard
- * - Arabic/English toggle + RTL
- *
- * ✅ Demo credentials:
- *   - Client ID: CP-1001  PIN: 1234
- *   - Client ID: CP-1002  PIN: 2222
- */
+const WA_NUMBER = "97156678811"; // رقمك بصيغة دولية بدون +
 
 type Lang = "en" | "ar";
-
-type CaseStatus = "pending" | "submitted" | "approved" | "rejected" | "needs_docs";
-
-type CaseItem = {
-  id: string;
-  type: string;
-  applicant: string;
-  status: CaseStatus;
-  updatedAt: string;
-  notes?: string;
-  timeline: Array<{ at: string; text: string }>;
-  docs: Array<{ name: string; state: "received" | "missing" }>;
-};
-
-type ClientRecord = {
-  clientId: string;
-  pin: string;
-  name: string;
-  phone: string;
-  office: string;
-  cases: CaseItem[];
-};
 
 const translations = {
   en: {
     brand: "CasePilot",
-    clientPortal: "Client Portal",
-    langAr: "AR",
-    langEn: "EN",
+    builtFor: "Built for UAE Visa & Typing Offices",
+    mvpSoon: "MVP coming soon",
+    navFeatures: "Features",
+    navPricing: "Pricing",
+    navWa: "WhatsApp Early Access",
+    navEarlyAccess: "Request Early Access",
 
-    loginTitle: "Client Login",
-    loginDesc:
-      "Enter your Client ID and PIN to view your cases. (Demo only — no real data yet.)",
-    clientId: "Client ID",
-    pin: "PIN",
-    login: "Login",
-    logout: "Logout",
-    wrongCreds: "Incorrect Client ID or PIN. Try the demo credentials below.",
-    demoCreds: "Demo credentials",
-    demo1: "Client ID: CP-1001 • PIN: 1234",
-    demo2: "Client ID: CP-1002 • PIN: 2222",
+    heroTitle: "Take Control of Every Visa Case.",
+    heroDesc:
+      "CasePilot gives typing centers and visa offices one clean dashboard to track applications, upload documents, and update status—without the chaos of WhatsApp + Excel.",
+    ctaLeaveDetails: "Leave your details",
+    ctaSeeHow: "See how it works",
 
-    hello: "Hello",
-    office: "Office",
-    phone: "Phone",
-    myCases: "My Cases",
-    search: "Search cases…",
-    filterAll: "All",
-    filterPending: "Pending",
-    filterSubmitted: "Submitted",
-    filterApproved: "Approved",
-    filterRejected: "Rejected",
-    filterNeedsDocs: "Needs docs",
+    pills: ["No complex CRM", "Simple statuses", "Secure file uploads", "Modern UI"],
 
-    caseId: "Case ID",
-    type: "Type",
-    applicant: "Applicant",
-    status: "Status",
-    lastUpdate: "Last update",
-    open: "Open",
-    back: "Back",
+    mockToday: "Today",
+    mockOverview: "Office overview",
+    mockAddCase: "+ Add Case",
+    kpiTotal: "Total Cases",
+    kpiPending: "Pending",
+    kpiApproved: "Approved",
+    kpiOverdue: "Overdue",
+    recentActivity: "Recent activity",
+    activity1: "Status updated to Approved",
+    activity2: "Passport uploaded",
+    activity3: "New case created",
+    meta1: "Ahmed • 2m ago",
+    meta2: "Fatima • 18m ago",
+    meta3: "Omar • 1h ago",
 
-    caseDetails: "Case Details",
-    timeline: "Timeline",
-    documents: "Documents",
-    docReceived: "Received",
-    docMissing: "Missing",
-    notes: "Notes",
+    featuresTitle: "Everything you need for V1.",
+    featuresDesc: "Focused features for visa & typing offices—built for speed and clarity.",
+    feat1Title: "Applications Dashboard",
+    feat1Desc: "See all cases, statuses, and overdue items in one clean view.",
+    feat2Title: "Simple Status Tracking",
+    feat2Desc: "Pending → Submitted → Approved/Rejected with instant updates.",
+    feat3Title: "Secure Document Uploads",
+    feat3Desc: "Attach PDFs and IDs to each case, without messy folders.",
 
-    status_pending: "Pending",
-    status_submitted: "Submitted",
-    status_approved: "Approved",
-    status_rejected: "Rejected",
-    status_needs_docs: "Needs docs",
+    pricingTitle: "Early access pricing",
+    pricingDesc: "Founders price for the first 20 offices. Lock it for life.",
+    starter: "Starter",
+    priceSuffix: "AED / month",
+    starterBullets: [
+      "Up to 300 active cases",
+      "2 staff accounts",
+      "File uploads included",
+      "Activity timeline",
+    ],
+    pricingCta: "Request early access",
+    whatsNext: "What’s next",
+    whatsNextDesc:
+      "After V1 traction, we’ll add WhatsApp reminders, client portal, and reporting.",
+    v1: "✅ V1: Tracking + uploads + status",
+    v2: "⏭ V2: WhatsApp templates/reminders",
+    v3: "⏭ V3: Client portal + analytics",
 
+    earlyTitle: "Request Early Access",
+    earlyDesc: "Share your details and we’ll reach out when the MVP is ready. (No spam.)",
+    formName: "Name",
+    formOffice: "Office name",
+    formPhone: "Phone / WhatsApp",
+    submit: "Submit",
     tip:
-      "Tip: Next step is to connect this to a real backend (Supabase/Firebase) and issue real Client IDs.",
-    footer: "Built for UAE Visa & Typing Offices.",
+      "Tip: Replace the form action with your Formspree endpoint or a simple API route.",
+
+    footerRights: "All rights reserved.",
+    footerBuiltFor: "Built for UAE Visa & Typing Offices.",
+    langToggleEn: "EN",
+    langToggleAr: "AR",
   },
   ar: {
     brand: "CasePilot",
-    clientPortal: "بوابة العملاء",
-    langAr: "AR",
-    langEn: "EN",
+    builtFor: "مصمم لمكاتب التأشيرات والطباعة في الإمارات",
+    mvpSoon: "النسخة الأولى قريباً",
+    navFeatures: "المميزات",
+    navPricing: "الأسعار",
+    navWa: "الوصول عبر واتساب",
+    navEarlyAccess: "اطلب الوصول المبكر",
 
-    loginTitle: "تسجيل دخول العميل",
-    loginDesc:
-      "أدخل رقم العميل والـ PIN لعرض معاملاتك. (نسخة تجريبية — لا توجد بيانات حقيقية بعد)",
-    clientId: "رقم العميل",
-    pin: "PIN",
-    login: "دخول",
-    logout: "خروج",
-    wrongCreds: "رقم العميل أو PIN غير صحيح. جرّب بيانات الدخول التجريبية بالأسفل.",
-    demoCreds: "بيانات تجريبية",
-    demo1: "رقم العميل: CP-1001 • PIN: 1234",
-    demo2: "رقم العميل: CP-1002 • PIN: 2222",
+    heroTitle: "تحكم كامل في جميع معاملات التأشيرات.",
+    heroDesc:
+      "CasePilot يمنح مكاتب الطباعة والتأشيرات لوحة تحكم منظمة لمتابعة الطلبات ورفع الملفات وتحديث الحالة — بدون فوضى الواتساب والإكسل.",
+    ctaLeaveDetails: "اترك بياناتك",
+    ctaSeeHow: "شاهد طريقة العمل",
 
-    hello: "مرحباً",
-    office: "المكتب",
-    phone: "الهاتف",
-    myCases: "معاملاتي",
-    search: "ابحث في المعاملات…",
-    filterAll: "الكل",
-    filterPending: "قيد الانتظار",
-    filterSubmitted: "تم الإرسال",
-    filterApproved: "موافق عليها",
-    filterRejected: "مرفوضة",
-    filterNeedsDocs: "ناقص مستندات",
+    pills: ["بدون CRM معقد", "حالات بسيطة", "رفع ملفات آمن", "واجهة حديثة"],
 
-    caseId: "رقم المعاملة",
-    type: "النوع",
-    applicant: "المتقدم",
-    status: "الحالة",
-    lastUpdate: "آخر تحديث",
-    open: "عرض",
-    back: "رجوع",
+    mockToday: "اليوم",
+    mockOverview: "ملخص المكتب",
+    mockAddCase: "+ إضافة معاملة",
+    kpiTotal: "إجمالي المعاملات",
+    kpiPending: "قيد الانتظار",
+    kpiApproved: "تمت الموافقة",
+    kpiOverdue: "متأخرة",
+    recentActivity: "آخر النشاطات",
+    activity1: "تم تحديث الحالة إلى: تمت الموافقة",
+    activity2: "تم رفع جواز السفر",
+    activity3: "تم إنشاء معاملة جديدة",
+    meta1: "أحمد • منذ دقيقتين",
+    meta2: "فاطمة • منذ 18 دقيقة",
+    meta3: "عمر • منذ ساعة",
 
-    caseDetails: "تفاصيل المعاملة",
-    timeline: "سجل التحديثات",
-    documents: "المستندات",
-    docReceived: "مستلم",
-    docMissing: "ناقص",
-    notes: "ملاحظات",
+    featuresTitle: "كل ما تحتاجه في الإصدار الأول.",
+    featuresDesc: "مميزات مركزة لمكاتب التأشيرات والطباعة — بسرعة ووضوح.",
+    feat1Title: "لوحة متابعة المعاملات",
+    feat1Desc: "شاهد كل المعاملات والحالات والمتأخرات في شاشة واحدة.",
+    feat2Title: "تتبع حالات بسيط",
+    feat2Desc: "قيد الانتظار → تم الإرسال → مقبول/مرفوض مع تحديثات فورية.",
+    feat3Title: "رفع مستندات آمن",
+    feat3Desc: "أرفق ملفات PDF والهوية لكل معاملة بدون فوضى المجلدات.",
 
-    status_pending: "قيد الانتظار",
-    status_submitted: "تم الإرسال",
-    status_approved: "موافق عليها",
-    status_rejected: "مرفوضة",
-    status_needs_docs: "ناقص مستندات",
+    pricingTitle: "سعر الوصول المبكر",
+    pricingDesc: "سعر المؤسسين لأول 20 مكتب — ثبّته مدى الحياة.",
+    starter: "الأساسي",
+    priceSuffix: "درهم / شهرياً",
+    starterBullets: [
+      "حتى 300 معاملة نشطة",
+      "حسابين للموظفين",
+      "رفع ملفات متضمن",
+      "سجل نشاطات",
+    ],
+    pricingCta: "اطلب الوصول المبكر",
+    whatsNext: "القادم",
+    whatsNextDesc:
+      "بعد نجاح الإصدار الأول سنضيف تذكيرات واتساب، بوابة عملاء، وتقارير.",
+    v1: "✅ V1: متابعة + رفع ملفات + حالات",
+    v2: "⏭ V2: قوالب/تذكيرات واتساب",
+    v3: "⏭ V3: بوابة عملاء + تحليلات",
 
-    tip:
-      "ملاحظة: الخطوة التالية ربطها بباك-إند حقيقي (Supabase/Firebase) وإصدار أرقام عملاء حقيقية.",
-    footer: "مصمم لمكاتب التأشيرات والطباعة في الإمارات.",
+    earlyTitle: "اطلب الوصول المبكر",
+    earlyDesc: "شارك بياناتك وسنتواصل معك عند جاهزية النسخة الأولى. (بدون إزعاج)",
+    formName: "الاسم",
+    formOffice: "اسم المكتب",
+    formPhone: "الهاتف / واتساب",
+    submit: "إرسال",
+    tip: "ملاحظة: استبدل رابط الفورم برابط Formspree الخاص بك أو API بسيطة.",
+
+    footerRights: "جميع الحقوق محفوظة.",
+    footerBuiltFor: "مصمم لمكاتب التأشيرات والطباعة في الإمارات.",
+    langToggleEn: "EN",
+    langToggleAr: "AR",
   },
 } as const;
 
-const DEMO_DB: ClientRecord[] = [
-  {
-    clientId: "CP-1001",
-    pin: "1234",
-    name: "Ahmed Al Mazrouei",
-    phone: "+971 50 123 4567",
-    office: "Golden Gate Typing Center",
-    cases: [
-      {
-        id: "UAE-VC-24091",
-        type: "Employment Visa Renewal",
-        applicant: "Ahmed Al Mazrouei",
-        status: "submitted",
-        updatedAt: "Today • 11:20",
-        notes: "Medical is completed. Waiting for ICP approval.",
-        timeline: [
-          { at: "Today • 11:20", text: "Application submitted to ICP." },
-          { at: "Yesterday • 16:10", text: "Medical result received." },
-          { at: "Yesterday • 10:05", text: "Documents verified by office." },
-          { at: "2 days ago • 19:40", text: "Case created." },
-        ],
-        docs: [
-          { name: "Passport copy", state: "received" },
-          { name: "Emirates ID copy", state: "received" },
-          { name: "Photo", state: "received" },
-          { name: "Medical result", state: "received" },
-        ],
-      },
-      {
-        id: "UAE-VC-24107",
-        type: "Family Visa (Wife)",
-        applicant: "Mariam A.",
-        status: "needs_docs",
-        updatedAt: "Today • 09:55",
-        notes: "Please upload marriage certificate attested copy.",
-        timeline: [
-          { at: "Today • 09:55", text: "Office requested additional documents." },
-          { at: "Yesterday • 14:25", text: "Initial documents received." },
-          { at: "Yesterday • 13:40", text: "Case created." },
-        ],
-        docs: [
-          { name: "Passport copy", state: "received" },
-          { name: "Photo", state: "received" },
-          { name: "Marriage certificate (attested)", state: "missing" },
-        ],
-      },
-    ],
-  },
-  {
-    clientId: "CP-1002",
-    pin: "2222",
-    name: "Fatima Al Shehhi",
-    phone: "+971 55 777 9911",
-    office: "Al Noor Visa Services",
-    cases: [
-      {
-        id: "UAE-VC-23988",
-        type: "Visit Visa Extension",
-        applicant: "Fatima Al Shehhi",
-        status: "approved",
-        updatedAt: "Yesterday • 18:05",
-        notes: "Approved. You can collect your documents from the office.",
-        timeline: [
-          { at: "Yesterday • 18:05", text: "Status updated to Approved." },
-          { at: "Yesterday • 12:35", text: "Application submitted." },
-          { at: "2 days ago • 20:15", text: "Payment received." },
-          { at: "3 days ago • 10:10", text: "Case created." },
-        ],
-        docs: [
-          { name: "Passport copy", state: "received" },
-          { name: "Photo", state: "received" },
-        ],
-      },
-      {
-        id: "UAE-VC-24002",
-        type: "Cancellation Request",
-        applicant: "Fatima Al Shehhi",
-        status: "pending",
-        updatedAt: "Today • 08:40",
-        notes: "In queue. Office will submit today.",
-        timeline: [
-          { at: "Today • 08:40", text: "Office confirmed case details." },
-          { at: "Yesterday • 21:30", text: "Case created." },
-        ],
-        docs: [{ name: "Passport copy", state: "received" }],
-      },
-    ],
-  },
-];
+function generateWaLink(lang: Lang) {
+  const message =
+    lang === "ar"
+      ? "مرحباً CasePilot! أود التسجيل في الوصول المبكر.\nاسم المكتب:\nالمدينة:\nعدد المعاملات شهرياً (تقريباً):\n"
+      : "Hi CasePilot! I'm interested in Early Access.\nOffice name:\nCity:\nNo. of cases/month (approx):\n";
 
-function statusPillClasses(status: CaseStatus) {
-  switch (status) {
-    case "approved":
-      return "bg-emerald-50 text-emerald-700 border-emerald-200";
-    case "rejected":
-      return "bg-rose-50 text-rose-700 border-rose-200";
-    case "submitted":
-      return "bg-sky-50 text-sky-700 border-sky-200";
-    case "needs_docs":
-      return "bg-amber-50 text-amber-800 border-amber-200";
-    case "pending":
-    default:
-      return "bg-slate-100 text-slate-700 border-slate-200";
-  }
-}
-
-function tStatus(t: (typeof translations)["en"], status: CaseStatus) {
-  if (status === "pending") return t.status_pending;
-  if (status === "submitted") return t.status_submitted;
-  if (status === "approved") return t.status_approved;
-  if (status === "rejected") return t.status_rejected;
-  return t.status_needs_docs;
+  return `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(message)}`;
 }
 
 export default function Home() {
   const [lang, setLang] = useState<Lang>("en");
-  const [clientId, setClientId] = useState("");
-  const [pin, setPin] = useState("");
-  const [error, setError] = useState<string | null>(null);
 
-  const [sessionClientId, setSessionClientId] = useState<string | null>(null);
-
-  const [query, setQuery] = useState("");
-  const [filter, setFilter] = useState<
-    "all" | "pending" | "submitted" | "approved" | "rejected" | "needs_docs"
-  >("all");
-
-  const [selectedCaseId, setSelectedCaseId] = useState<string | null>(null);
-
-  // init
   useEffect(() => {
-    const savedLang = localStorage.getItem("lang") as Lang | null;
-    if (savedLang === "en" || savedLang === "ar") setLang(savedLang);
-
-    const savedSession = localStorage.getItem("cp_client_session");
-    if (savedSession) setSessionClientId(savedSession);
+    const saved = localStorage.getItem("lang") as Lang | null;
+    if (saved === "en" || saved === "ar") setLang(saved);
   }, []);
 
-  // apply lang
   useEffect(() => {
     localStorage.setItem("lang", lang);
     document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
@@ -298,64 +178,7 @@ export default function Home() {
   }, [lang]);
 
   const t = translations[lang];
-
-  const client = useMemo(() => {
-    if (!sessionClientId) return null;
-    return DEMO_DB.find((c) => c.clientId.toLowerCase() === sessionClientId.toLowerCase()) ?? null;
-  }, [sessionClientId]);
-
-  const allCases = client?.cases ?? [];
-
-  const filteredCases = useMemo(() => {
-    const q = query.trim().toLowerCase();
-
-    return allCases
-      .filter((c) => (filter === "all" ? true : c.status === filter))
-      .filter((c) => {
-        if (!q) return true;
-        return (
-          c.id.toLowerCase().includes(q) ||
-          c.type.toLowerCase().includes(q) ||
-          c.applicant.toLowerCase().includes(q) ||
-          (c.notes ?? "").toLowerCase().includes(q)
-        );
-      });
-  }, [allCases, filter, query]);
-
-  const selectedCase = useMemo(() => {
-    if (!selectedCaseId) return null;
-    return allCases.find((c) => c.id === selectedCaseId) ?? null;
-  }, [allCases, selectedCaseId]);
-
-  function onLogin(e: React.FormEvent) {
-    e.preventDefault();
-    setError(null);
-
-    const found = DEMO_DB.find(
-      (c) =>
-        c.clientId.toLowerCase() === clientId.trim().toLowerCase() &&
-        c.pin === pin.trim()
-    );
-
-    if (!found) {
-      setError(t.wrongCreds);
-      return;
-    }
-
-    localStorage.setItem("cp_client_session", found.clientId);
-    setSessionClientId(found.clientId);
-    setSelectedCaseId(null);
-    setClientId("");
-    setPin("");
-  }
-
-  function onLogout() {
-    localStorage.removeItem("cp_client_session");
-    setSessionClientId(null);
-    setSelectedCaseId(null);
-    setQuery("");
-    setFilter("all");
-  }
+  const WA_LINK = generateWaLink(lang);
 
   return (
     <main className="min-h-screen bg-white text-slate-900">
@@ -364,363 +187,265 @@ export default function Home() {
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
           <div className="flex items-center gap-2 rtl:flex-row-reverse">
             <div className="h-8 w-8 rounded-lg bg-slate-900" />
-            <div className="leading-tight">
-              <div className="text-lg font-semibold tracking-tight">{t.brand}</div>
-              <div className="text-xs text-slate-500">{t.clientPortal}</div>
-            </div>
+            <span className="text-lg font-semibold tracking-tight">{t.brand}</span>
           </div>
 
-          <div className="flex items-center gap-3 rtl:flex-row-reverse">
+          <nav className="hidden items-center gap-6 text-sm text-slate-600 md:flex">
+            <a href="#features" className="hover:text-slate-900">
+              {t.navFeatures}
+            </a>
+
+            <a
+              href={WA_LINK}
+              target="_blank"
+              rel="noreferrer"
+              className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800"
+            >
+              {t.navWa}
+            </a>
+
+            <a href="#pricing" className="hover:text-slate-900">
+              {t.navPricing}
+            </a>
+
             <button
               onClick={() => setLang(lang === "en" ? "ar" : "en")}
               className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
               aria-label="Toggle language"
             >
-              {lang === "en" ? t.langAr : t.langEn}
+              {lang === "en" ? t.langToggleAr : t.langToggleEn}
+            </button>
+          </nav>
+
+          <div className="flex items-center gap-3 rtl:flex-row-reverse">
+            <button
+              onClick={() => setLang(lang === "en" ? "ar" : "en")}
+              className="md:hidden rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+              aria-label="Toggle language"
+            >
+              {lang === "en" ? t.langToggleAr : t.langToggleEn}
             </button>
 
-            {sessionClientId ? (
-              <button
-                onClick={onLogout}
-                className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800"
-              >
-                {t.logout}
-              </button>
-            ) : null}
+            <a
+              href="#early-access"
+              className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800"
+            >
+              {t.navEarlyAccess}
+            </a>
           </div>
         </div>
       </header>
 
-      {/* Content */}
-      <section className="mx-auto max-w-6xl px-6 py-10">
-        {!sessionClientId || !client ? (
-          <div className="grid gap-8 md:grid-cols-2">
-            {/* Login card */}
-            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-              <h1 className="text-2xl font-semibold tracking-tight">{t.loginTitle}</h1>
-              <p className="mt-2 text-sm text-slate-600">{t.loginDesc}</p>
+      {/* Hero */}
+      <section className="mx-auto max-w-6xl px-6 pb-16 pt-14">
+        <div className="grid items-center gap-10 md:grid-cols-2">
+          <div>
+            <p className="mb-3 inline-flex items-center gap-2 rounded-full border border-slate-200 px-3 py-1 text-xs text-slate-600 rtl:flex-row-reverse">
+              {t.builtFor}
+              <span className="h-1 w-1 rounded-full bg-slate-400" />
+              {t.mvpSoon}
+            </p>
 
-              <form onSubmit={onLogin} className="mt-6 space-y-3">
-                <div>
-                  <label className="mb-1 block text-xs font-medium text-slate-600">
-                    {t.clientId}
-                  </label>
-                  <input
-                    value={clientId}
-                    onChange={(e) => setClientId(e.target.value)}
-                    placeholder="CP-1001"
-                    className="w-full rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-slate-900/20"
-                  />
-                </div>
+            <h1 className="text-4xl font-semibold tracking-tight md:text-5xl">
+              {t.heroTitle}
+            </h1>
 
-                <div>
-                  <label className="mb-1 block text-xs font-medium text-slate-600">
-                    {t.pin}
-                  </label>
-                  <input
-                    value={pin}
-                    onChange={(e) => setPin(e.target.value)}
-                    placeholder="1234"
-                    inputMode="numeric"
-                    className="w-full rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-slate-900/20"
-                  />
-                </div>
+            <p className="mt-4 max-w-xl text-base leading-relaxed text-slate-600">
+              {t.heroDesc}
+            </p>
 
-                {error ? (
-                  <div className="rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
-                    {error}
-                  </div>
-                ) : null}
+            <div className="mt-7 flex flex-col gap-3 sm:flex-row rtl:sm:flex-row-reverse">
+              <a
+                href={WA_LINK}
+                target="_blank"
+                rel="noreferrer"
+                className="rounded-lg bg-slate-900 px-5 py-3 text-sm font-medium text-white hover:bg-slate-800"
+              >
+                {t.navWa}
+              </a>
 
+              <a
+                href="#early-access"
+                className="rounded-lg border border-slate-200 px-5 py-3 text-sm font-medium text-slate-900 hover:bg-slate-50"
+              >
+                {t.ctaLeaveDetails}
+              </a>
+
+              <a
+                href="#features"
+                className="rounded-lg border border-slate-200 px-5 py-3 text-sm font-medium text-slate-900 hover:bg-slate-50"
+              >
+                {t.ctaSeeHow}
+              </a>
+            </div>
+
+            <div className="mt-8 flex flex-wrap gap-4 text-xs text-slate-500 rtl:flex-row-reverse">
+              {t.pills.map((p) => (
+                <span key={p} className="rounded-full bg-slate-100 px-3 py-1">
+                  {p}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          {/* Mock card */}
+          <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+            <div className="flex items-center justify-between rtl:flex-row-reverse">
+              <div>
+                <p className="text-sm font-medium">{t.mockToday}</p>
+                <p className="text-xs text-slate-500">{t.mockOverview}</p>
+              </div>
+              <div className="rounded-lg bg-slate-900 px-3 py-2 text-xs font-medium text-white">
+                {t.mockAddCase}
+              </div>
+            </div>
+
+            <div className="mt-5 grid grid-cols-2 gap-3">
+              <Kpi title={t.kpiTotal} value="128" />
+              <Kpi title={t.kpiPending} value="41" />
+              <Kpi title={t.kpiApproved} value="67" />
+              <Kpi title={t.kpiOverdue} value="6" />
+            </div>
+
+            <div className="mt-5">
+              <p className="mb-2 text-xs font-medium text-slate-600">{t.recentActivity}</p>
+              <div className="space-y-2">
+                <Activity text={t.activity1} meta={t.meta1} />
+                <Activity text={t.activity2} meta={t.meta2} />
+                <Activity text={t.activity3} meta={t.meta3} />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Features */}
+      <section id="features" className="border-t border-slate-200 bg-slate-50">
+        <div className="mx-auto max-w-6xl px-6 py-14">
+          <h2 className="text-2xl font-semibold tracking-tight">{t.featuresTitle}</h2>
+          <p className="mt-2 max-w-2xl text-sm text-slate-600">{t.featuresDesc}</p>
+
+          <div className="mt-8 grid gap-4 md:grid-cols-3">
+            <Feature title={t.feat1Title} desc={t.feat1Desc} />
+            <Feature title={t.feat2Title} desc={t.feat2Desc} />
+            <Feature title={t.feat3Title} desc={t.feat3Desc} />
+          </div>
+        </div>
+      </section>
+
+      {/* Pricing */}
+      <section id="pricing" className="border-t border-slate-200 bg-white">
+        <div className="mx-auto max-w-6xl px-6 py-14">
+          <h2 className="text-2xl font-semibold tracking-tight">{t.pricingTitle}</h2>
+          <p className="mt-2 max-w-2xl text-sm text-slate-600">{t.pricingDesc}</p>
+
+          <div className="mt-8 grid gap-6 md:grid-cols-2">
+            <div className="rounded-2xl border border-slate-200 p-6">
+              <p className="text-sm font-medium">{t.starter}</p>
+              <p className="mt-2 text-4xl font-semibold">
+                199 <span className="text-base font-medium text-slate-500">{t.priceSuffix}</span>
+              </p>
+              <ul className="mt-5 space-y-2 text-sm text-slate-600">
+                {t.starterBullets.map((b) => (
+                  <li key={b}>• {b}</li>
+                ))}
+              </ul>
+              <a
+                href="#early-access"
+                className="mt-6 inline-flex w-full items-center justify-center rounded-lg bg-slate-900 px-4 py-3 text-sm font-medium text-white hover:bg-slate-800"
+              >
+                {t.pricingCta}
+              </a>
+            </div>
+
+            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-6">
+              <p className="text-sm font-medium">{t.whatsNext}</p>
+              <p className="mt-2 text-sm text-slate-600">{t.whatsNextDesc}</p>
+              <div className="mt-5 space-y-3 text-sm text-slate-700">
+                <div className="rounded-lg border border-slate-200 bg-white p-3">{t.v1}</div>
+                <div className="rounded-lg border border-slate-200 bg-white p-3">{t.v2}</div>
+                <div className="rounded-lg border border-slate-200 bg-white p-3">{t.v3}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Early Access */}
+      <section id="early-access" className="border-t border-slate-200 bg-white">
+        <div className="mx-auto max-w-6xl px-6 py-14">
+          <div className="rounded-2xl border border-slate-200 bg-slate-50 p-8">
+            <h3 className="text-xl font-semibold tracking-tight">{t.earlyTitle}</h3>
+            <p className="mt-2 max-w-2xl text-sm text-slate-600">{t.earlyDesc}</p>
+
+            <form
+              className="mt-6 grid gap-3 md:grid-cols-3"
+              action="https://formspree.io/f/xdaleobd"
+              method="POST"
+            >
+              <input
+                name="name"
+                placeholder={t.formName}
+                className="rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-slate-900/20"
+              />
+              <input
+                name="office"
+                placeholder={t.formOffice}
+                className="rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-slate-900/20"
+              />
+              <input
+                name="phone"
+                placeholder={t.formPhone}
+                className="rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-slate-900/20"
+              />
+
+              <div className="md:col-span-3">
                 <button
                   type="submit"
                   className="w-full rounded-lg bg-slate-900 px-4 py-3 text-sm font-medium text-white hover:bg-slate-800"
                 >
-                  {t.login}
+                  {t.submit}
                 </button>
-
-                <div className="rounded-lg border border-slate-200 bg-slate-50 px-4 py-3">
-                  <div className="text-xs font-medium text-slate-700">{t.demoCreds}</div>
-                  <div className="mt-1 text-xs text-slate-600">{t.demo1}</div>
-                  <div className="mt-1 text-xs text-slate-600">{t.demo2}</div>
-                </div>
-              </form>
-            </div>
-
-            {/* Right: what client sees */}
-            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-6">
-              <p className="text-sm font-medium text-slate-800">{t.myCases}</p>
-              <p className="mt-2 text-sm text-slate-600">
-                {lang === "ar"
-                  ? "بعد تسجيل الدخول، سيظهر للعميل قائمة بالمعاملات مع الحالة وآخر تحديث، ويمكنه فتح كل معاملة لرؤية التفاصيل والمستندات."
-                  : "After login, the client sees a list of cases with status + last update, and can open each case to view details and required documents."}
-              </p>
-
-              <div className="mt-5 space-y-3">
-                <MockCaseRow
-                  id="UAE-VC-24091"
-                  type={lang === "ar" ? "تجديد إقامة عمل" : "Employment Visa Renewal"}
-                  status={lang === "ar" ? t.status_submitted : t.status_submitted}
-                />
-                <MockCaseRow
-                  id="UAE-VC-24107"
-                  type={lang === "ar" ? "تأشيرة عائلية" : "Family Visa"}
-                  status={lang === "ar" ? t.status_needs_docs : t.status_needs_docs}
-                />
-                <MockCaseRow
-                  id="UAE-VC-23988"
-                  type={lang === "ar" ? "تمديد زيارة" : "Visit Visa Extension"}
-                  status={lang === "ar" ? t.status_approved : t.status_approved}
-                />
+                <p className="mt-2 text-xs text-slate-500">{t.tip}</p>
               </div>
-
-              <p className="mt-6 text-xs text-slate-500">{t.tip}</p>
-            </div>
+            </form>
           </div>
-        ) : (
-          <div className="grid gap-6 md:grid-cols-12">
-            {/* Left: profile + filters */}
-            <aside className="md:col-span-4">
-              <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-                <p className="text-sm text-slate-500">
-                  {t.hello}{" "}
-                  <span className="text-slate-900 font-semibold">{client.name}</span>
-                </p>
 
-                <div className="mt-4 space-y-2 text-sm text-slate-700">
-                  <div className="flex items-center justify-between rtl:flex-row-reverse">
-                    <span className="text-slate-500">{t.clientId}</span>
-                    <span className="font-medium">{client.clientId}</span>
-                  </div>
-                  <div className="flex items-center justify-between rtl:flex-row-reverse">
-                    <span className="text-slate-500">{t.office}</span>
-                    <span className="font-medium">{client.office}</span>
-                  </div>
-                  <div className="flex items-center justify-between rtl:flex-row-reverse">
-                    <span className="text-slate-500">{t.phone}</span>
-                    <span className="font-medium">{client.phone}</span>
-                  </div>
-                </div>
-
-                <div className="mt-6">
-                  <input
-                    value={query}
-                    onChange={(e) => setQuery(e.target.value)}
-                    placeholder={t.search}
-                    className="w-full rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-slate-900/20"
-                  />
-                </div>
-
-                <div className="mt-3 flex flex-wrap gap-2 rtl:flex-row-reverse">
-                  <FilterPill label={t.filterAll} active={filter === "all"} onClick={() => setFilter("all")} />
-                  <FilterPill label={t.filterPending} active={filter === "pending"} onClick={() => setFilter("pending")} />
-                  <FilterPill label={t.filterSubmitted} active={filter === "submitted"} onClick={() => setFilter("submitted")} />
-                  <FilterPill label={t.filterApproved} active={filter === "approved"} onClick={() => setFilter("approved")} />
-                  <FilterPill label={t.filterRejected} active={filter === "rejected"} onClick={() => setFilter("rejected")} />
-                  <FilterPill label={t.filterNeedsDocs} active={filter === "needs_docs"} onClick={() => setFilter("needs_docs")} />
-                </div>
-              </div>
-
-              <div className="mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-6">
-                <p className="text-xs font-medium text-slate-700">
-                  {lang === "ar"
-                    ? "هذه صفحة تجريبية (Demo)."
-                    : "This is a demo page."}
-                </p>
-                <p className="mt-2 text-xs text-slate-600">
-                  {lang === "ar"
-                    ? "في الاجتماع: قل لهم أن هذا هو شكل بوابة العميل، وخطوتك التالية إضافة رفع مستندات وربطها بلوحة المكتب."
-                    : "In the meeting: tell them this is the client portal UI; next step is enabling uploads + linking to office dashboard."}
-                </p>
-              </div>
-            </aside>
-
-            {/* Right: cases list / details */}
-            <section className="md:col-span-8">
-              {!selectedCase ? (
-                <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-                  <div className="flex items-center justify-between rtl:flex-row-reverse">
-                    <h2 className="text-xl font-semibold tracking-tight">{t.myCases}</h2>
-                    <span className="text-xs text-slate-500">
-                      {filteredCases.length} / {allCases.length}
-                    </span>
-                  </div>
-
-                  <div className="mt-4 overflow-hidden rounded-xl border border-slate-200">
-                    <div className="grid grid-cols-12 bg-slate-50 px-4 py-3 text-xs font-medium text-slate-600">
-                      <div className="col-span-3">{t.caseId}</div>
-                      <div className="col-span-4">{t.type}</div>
-                      <div className="col-span-3">{t.status}</div>
-                      <div className="col-span-2 text-right rtl:text-left">{t.open}</div>
-                    </div>
-
-                    <div className="divide-y divide-slate-200">
-                      {filteredCases.map((c) => (
-                        <div
-                          key={c.id}
-                          className="grid grid-cols-12 items-center px-4 py-3 text-sm"
-                        >
-                          <div className="col-span-3 font-medium text-slate-900">{c.id}</div>
-                          <div className="col-span-4 text-slate-700">{c.type}</div>
-                          <div className="col-span-3">
-                            <span
-                              className={`inline-flex items-center rounded-full border px-2.5 py-1 text-xs font-medium ${statusPillClasses(
-                                c.status
-                              )}`}
-                            >
-                              {tStatus(translations[lang] as any, c.status)}
-                            </span>
-                            <div className="mt-1 text-[11px] text-slate-500">{c.updatedAt}</div>
-                          </div>
-                          <div className="col-span-2 text-right rtl:text-left">
-                            <button
-                              onClick={() => setSelectedCaseId(c.id)}
-                              className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50"
-                            >
-                              {t.open}
-                            </button>
-                          </div>
-                        </div>
-                      ))}
-                      {filteredCases.length === 0 ? (
-                        <div className="px-4 py-8 text-sm text-slate-500">
-                          {lang === "ar" ? "لا توجد نتائج." : "No results."}
-                        </div>
-                      ) : null}
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-                  <div className="flex items-center justify-between rtl:flex-row-reverse">
-                    <div>
-                      <p className="text-xs text-slate-500">{t.caseDetails}</p>
-                      <h2 className="mt-1 text-xl font-semibold tracking-tight">
-                        {selectedCase.id}
-                      </h2>
-                      <p className="mt-1 text-sm text-slate-600">
-                        {selectedCase.type} • {selectedCase.applicant}
-                      </p>
-                    </div>
-
-                    <div className="flex items-center gap-2 rtl:flex-row-reverse">
-                      <span
-                        className={`inline-flex items-center rounded-full border px-2.5 py-1 text-xs font-medium ${statusPillClasses(
-                          selectedCase.status
-                        )}`}
-                      >
-                        {tStatus(translations[lang] as any, selectedCase.status)}
-                      </span>
-                      <button
-                        onClick={() => setSelectedCaseId(null)}
-                        className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50"
-                      >
-                        {t.back}
-                      </button>
-                    </div>
-                  </div>
-
-                  <div className="mt-6 grid gap-6 md:grid-cols-2">
-                    {/* Timeline */}
-                    <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
-                      <p className="text-sm font-semibold">{t.timeline}</p>
-                      <div className="mt-4 space-y-3">
-                        {selectedCase.timeline.map((item, idx) => (
-                          <div
-                            key={idx}
-                            className="rounded-xl border border-slate-200 bg-white px-4 py-3"
-                          >
-                            <p className="text-xs text-slate-500">{item.at}</p>
-                            <p className="mt-1 text-sm text-slate-700">{item.text}</p>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Docs + Notes */}
-                    <div className="space-y-6">
-                      <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
-                        <p className="text-sm font-semibold">{t.documents}</p>
-                        <div className="mt-4 space-y-2">
-                          {selectedCase.docs.map((d, idx) => (
-                            <div
-                              key={idx}
-                              className="flex items-center justify-between rounded-xl border border-slate-200 bg-white px-4 py-3 rtl:flex-row-reverse"
-                            >
-                              <p className="text-sm text-slate-700">{d.name}</p>
-                              <span
-                                className={`rounded-full border px-2.5 py-1 text-xs font-medium ${
-                                  d.state === "received"
-                                    ? "bg-emerald-50 text-emerald-700 border-emerald-200"
-                                    : "bg-amber-50 text-amber-800 border-amber-200"
-                                }`}
-                              >
-                                {d.state === "received" ? t.docReceived : t.docMissing}
-                              </span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-
-                      <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
-                        <p className="text-sm font-semibold">{t.notes}</p>
-                        <p className="mt-2 text-sm text-slate-700">
-                          {selectedCase.notes || (lang === "ar" ? "لا توجد ملاحظات." : "No notes.")}
-                        </p>
-                        <p className="mt-3 text-xs text-slate-500">{selectedCase.updatedAt}</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </section>
-
-            <footer className="md:col-span-12 mt-2 text-xs text-slate-500">
-              <div className="border-t border-slate-200 pt-6 flex items-center justify-between rtl:flex-row-reverse">
-                <span>© {new Date().getFullYear()} {t.brand}</span>
-                <span>{t.footer}</span>
-              </div>
-            </footer>
-          </div>
-        )}
+          <footer className="mt-10 flex flex-col items-start justify-between gap-3 border-t border-slate-200 pt-6 text-xs text-slate-500 md:flex-row md:items-center rtl:md:flex-row-reverse">
+            <p>
+              © {new Date().getFullYear()} {t.brand}. {t.footerRights}
+            </p>
+            <p>{t.footerBuiltFor}</p>
+          </footer>
+        </div>
       </section>
     </main>
   );
 }
 
-function FilterPill({
-  label,
-  active,
-  onClick,
-}: {
-  label: string;
-  active: boolean;
-  onClick: () => void;
-}) {
+function Kpi({ title, value }: { title: string; value: string }) {
   return (
-    <button
-      onClick={onClick}
-      className={`rounded-full border px-3 py-1 text-xs font-medium ${
-        active ? "bg-slate-900 text-white border-slate-900" : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50"
-      }`}
-    >
-      {label}
-    </button>
+    <div className="rounded-xl border border-slate-200 bg-white p-4">
+      <p className="text-xs text-slate-500">{title}</p>
+      <p className="mt-2 text-2xl font-semibold">{value}</p>
+    </div>
   );
 }
 
-function MockCaseRow({ id, type, status }: { id: string; type: string; status: string }) {
+function Activity({ text, meta }: { text: string; meta: string }) {
   return (
-    <div className="rounded-xl border border-slate-200 bg-white px-4 py-3">
-      <div className="flex items-center justify-between rtl:flex-row-reverse">
-        <div>
-          <p className="text-xs text-slate-500">{id}</p>
-          <p className="mt-1 text-sm font-medium text-slate-800">{type}</p>
-        </div>
-        <span className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs text-slate-700">
-          {status}
-        </span>
-      </div>
+    <div className="flex items-center justify-between rounded-lg border border-slate-200 bg-white px-3 py-2 rtl:flex-row-reverse">
+      <p className="text-xs text-slate-700">{text}</p>
+      <p className="text-[11px] text-slate-500">{meta}</p>
+    </div>
+  );
+}
+
+function Feature({ title, desc }: { title: string; desc: string }) {
+  return (
+    <div className="rounded-2xl border border-slate-200 bg-white p-6">
+      <p className="text-sm font-semibold">{title}</p>
+      <p className="mt-2 text-sm text-slate-600">{desc}</p>
     </div>
   );
 }
