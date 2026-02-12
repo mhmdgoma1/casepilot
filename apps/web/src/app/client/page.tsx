@@ -55,8 +55,7 @@ const translations = {
     logout: "Logout",
     wrongCreds: "Incorrect Client ID or PIN. Try the demo credentials below.",
     demoCreds: "Demo credentials",
-    demo1: "Client ID: CP-1001 • PIN: 1234",
-    demo2: "Client ID: CP-1002 • PIN: 2222",
+    demo1: "Please contact us for demo credentials",
 
     hello: "Hello",
     office: "Office",
@@ -110,8 +109,7 @@ const translations = {
     logout: "خروج",
     wrongCreds: "رقم العميل أو PIN غير صحيح. جرّب بيانات الدخول التجريبية بالأسفل.",
     demoCreds: "بيانات تجريبية",
-    demo1: "رقم العميل: CP-1001 • PIN: 1234",
-    demo2: "رقم العميل: CP-1002 • PIN: 2222",
+    demo1: "يرجى التواصل معنا",
 
     hello: "مرحباً",
     office: "المكتب",
@@ -442,7 +440,6 @@ export default function Home() {
                 <div className="rounded-lg border border-slate-200 bg-slate-50 px-4 py-3">
                   <div className="text-xs font-medium text-slate-700">{t.demoCreds}</div>
                   <div className="mt-1 text-xs text-slate-600">{t.demo1}</div>
-                  <div className="mt-1 text-xs text-slate-600">{t.demo2}</div>
                 </div>
               </form>
             </div>
