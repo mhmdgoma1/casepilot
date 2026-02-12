@@ -72,9 +72,6 @@ const translations = {
     formOffice: "Office name",
     formPhone: "Phone / WhatsApp",
     submit: "Submit",
-    tip:
-      "Tip: Replace the form action with your Formspree endpoint or a simple API route.",
-
     footerRights: "All rights reserved.",
     footerBuiltFor: "Built for UAE Visa & Typing Offices.",
     langToggleEn: "EN",
