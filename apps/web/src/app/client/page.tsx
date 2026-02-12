@@ -13,6 +13,8 @@ import { useEffect, useMemo, useState } from "react";
  * ✅ Demo credentials:
  *   - Client ID: CP-1001  PIN: 1234
  *   - Client ID: CP-1002  PIN: 2222
+ *   - Client ID: Nehad  PIN: 2222
+
  */
 
 type Lang = "en" | "ar";
@@ -199,9 +201,9 @@ const DEMO_DB: ClientRecord[] = [
     ],
   },
   {
-    clientId: "CP-1002",
+    clientId: "Nehad",
     pin: "2222",
-    name: "Fatima Al Shehhi",
+    name: "Nehad Kameel",
     phone: "+971 54 328 2823",
     office: "Jazeerah Al Maryah",
     cases: [
