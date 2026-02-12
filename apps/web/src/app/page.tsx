@@ -72,6 +72,8 @@ const translations = {
     formOffice: "Office name",
     formPhone: "Phone / WhatsApp",
     submit: "Submit",
+    tip:
+      "Tip: An email will be shared with your details and we will contact you as soon as possible.",
     footerRights: "All rights reserved.",
     footerBuiltFor: "Built for UAE Visa & Typing Offices.",
     langToggleEn: "EN",
