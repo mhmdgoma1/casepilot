@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-const WA_NUMBER = "97156678811"; // رقمك بصيغة دولية بدون +
+const WA_NUMBER = "971566678811"; // رقمك بصيغة دولية بدون +
 
 type Lang = "en" | "ar";
 
