@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect, useState } from "react";
 
 const WA_NUMBER = "971566678811"; // رقمك بصيغة دولية بدون +
