@@ -14,7 +14,7 @@ const translations = {
     navFeatures: "Features",
     navPricing: "Pricing",
     navWa: "WhatsApp Early Access",
-    navEarlyAccess: "Request Early Access",
+    navEarlyAccess: "Try Me",
 
     heroTitle: "Take Control of Every Visa Case.",
     heroDesc:
@@ -87,7 +87,7 @@ const translations = {
     navFeatures: "المميزات",
     navPricing: "الأسعار",
     navWa: "الوصول عبر واتساب",
-    navEarlyAccess: "اطلب الوصول المبكر",
+    navEarlyAccess: "جربني",
 
     heroTitle: "تحكم كامل في جميع معاملات التأشيرات.",
     heroDesc:
@@ -204,10 +204,6 @@ export default function Home() {
               {t.navWa}
             </a>
 
-            <a href="/client" className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium text-slate-900 hover:bg-slate-50">
-              Client Login
-            </a>
-
             <a href="#pricing" className="hover:text-slate-900">
               {t.navPricing}
             </a>
@@ -231,7 +227,7 @@ export default function Home() {
             </button>
 
             <a
-              href="#early-access"
+              href="/client"
               className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800"
             >
               {t.navEarlyAccess}
