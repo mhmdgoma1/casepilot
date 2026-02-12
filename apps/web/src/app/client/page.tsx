@@ -91,7 +91,7 @@ const translations = {
     status_needs_docs: "Needs docs",
 
     tip:
-      "Tip: Next step is to connect this to a real backend (Supabase/Firebase) and issue real Client IDs.",
+      "========================",
     footer: "Built for UAE Visa & Typing Offices.",
   },
   ar: {
