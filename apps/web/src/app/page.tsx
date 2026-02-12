@@ -1,3 +1,13 @@
+const WA_NUMBER = "97156678811"; // <-- حط رقمك بصيغة دولية بدون +
+const WA_TEXT = encodeURIComponent(
+  "Hi CasePilot! I'm interested in Early Access.\n" +
+  "Office name: \n" +
+  "City: \n" +
+  "No. of cases/month (approx): \n"
+);
+
+const WA_LINK = `https://wa.me/${WA_NUMBER}?text=${WA_TEXT}`;
+
 export default function Home() {
   return (
     <main className="min-h-screen bg-white text-slate-900">
@@ -11,8 +21,12 @@ export default function Home() {
 
           <nav className="hidden items-center gap-6 text-sm text-slate-600 md:flex">
             <a href="#features" className="hover:text-slate-900">Features</a>
+            <a href={WA_LINK} target="_blank" rel="noreferrer"
+              className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800">
+              WhatsApp Early Access
+            </a>
             <a href="#pricing" className="hover:text-slate-900">Pricing</a>
-            <a href="#early-access" className="hover:text-slate-900">Early Access</a>
+
           </nav>
 
           <a
@@ -45,11 +59,21 @@ export default function Home() {
 
             <div className="mt-7 flex flex-col gap-3 sm:flex-row">
               <a
-                href="#early-access"
+                href={WA_LINK}
+                target="_blank"
+                rel="noreferrer"
                 className="rounded-lg bg-slate-900 px-5 py-3 text-sm font-medium text-white hover:bg-slate-800"
               >
-                Request Early Access
+                WhatsApp Early Access
               </a>
+
+              <a
+                href="#early-access"
+                className="rounded-lg border border-slate-200 px-5 py-3 text-sm font-medium text-slate-900 hover:bg-slate-50"
+              >
+                Leave your details
+              </a>
+
               <a
                 href="#features"
                 className="rounded-lg border border-slate-200 px-5 py-3 text-sm font-medium text-slate-900 hover:bg-slate-50"
@@ -57,6 +81,7 @@ export default function Home() {
                 See how it works
               </a>
             </div>
+
 
             <div className="mt-8 flex flex-wrap gap-4 text-xs text-slate-500">
               <span className="rounded-full bg-slate-100 px-3 py-1">No complex CRM</span>
@@ -182,7 +207,7 @@ export default function Home() {
 
             <form
               className="mt-6 grid gap-3 md:grid-cols-3"
-              action="https://formspree.io/f/your_form_id"
+              action="https://formspree.io/f/xdaleobd"
               method="POST"
             >
               <input
